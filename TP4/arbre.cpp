@@ -24,7 +24,7 @@ branch *newBranch(int val) {
 void showRec(branch *b, int space) {
 	for (int i = 0; i < space; i++) {
 		if (i < space - 1)
-			cout << "| ";
+			cout << "  ";
 		else
 			cout << "\u21B3 ";
 	}
@@ -59,14 +59,16 @@ void addValIter(tree *t, int val) {
 }
 
 void recAddVal(branch *b, int val) {
-	if (b ->left != NULL && val < b -> data)
-		recAddVal(b -> left, val);
-	else if (b ->right != NULL && val >= b -> data)
+	if (val >= b -> data && b ->right != NULL)
 		recAddVal(b -> right, val);
-	if (b ->left == NULL && b ->right == NULL) {
+	else if (val < b -> data && b ->left != NULL)
+		recAddVal(b -> left, val);
+	if (b ->left == NULL || b ->right == NULL) {
 		if (val >= b -> data) {
+			cout << "Added right"<< endl;
 			b -> right = newBranch(val);
 		} else {
+			cout << "Added left"<< endl;
 			b -> left = newBranch(val);
 		}
 	}
@@ -106,7 +108,9 @@ int main() {
 	t -> root -> left = newBranch(4);
 	t -> root -> right = newBranch(6);
 	t -> root -> left -> left = newBranch(3);
-	addValRec(t, 7);
+	addValRec(t, 4);
+	addValRec(t, 4);
+	addValIter(t, 3);
 	cout << "Profondeur: " << deepness(t) << endl;;
 	showTree(t);
 	return 0;
