@@ -7,6 +7,7 @@ struct branch {
 	int data;
 	branch *left;
 	branch *right;
+	int visited;
 };
 
 struct tree {
@@ -16,6 +17,7 @@ struct tree {
 branch *newBranch(int val) {
 	branch *b = (branch*) malloc (sizeof(branch));
 	b -> data = val;
+	b -> visited = 0;
 	b -> left = NULL;
 	b -> right = NULL;
 	return b;
@@ -65,10 +67,8 @@ void recAddVal(branch *b, int val) {
 		recAddVal(b -> left, val);
 	if (b ->left == NULL || b ->right == NULL) {
 		if (val >= b -> data) {
-			cout << "Added right"<< endl;
 			b -> right = newBranch(val);
 		} else {
-			cout << "Added left"<< endl;
 			b -> left = newBranch(val);
 		}
 	}
@@ -98,8 +98,31 @@ int recDeepness(branch *b) {
 	}
 }
 
-int deepness(tree *t) {
+int deepnessRec(tree *t) {
 	return recDeepness(t -> root);
+}
+
+int deepnessIter(tree *t) {
+	branch *b = t -> root;
+	int max = 0;
+	int nb = 0;
+	while (b && !b -> visited) {
+		if (b -> left && !b -> left->visited) {
+			nb++;
+			b = b -> left;
+		} else if (b -> right && !b -> right->visited) {
+			nb++;
+			b = b -> right;
+		} else {
+			nb++;
+			if (nb > max)
+				max = nb;
+			nb = 0;
+			b -> visited = 1;
+			b = t -> root;
+		}
+	}
+	return max;
 }
 
 int main() {
@@ -111,7 +134,8 @@ int main() {
 	addValRec(t, 4);
 	addValRec(t, 4);
 	addValIter(t, 3);
-	cout << "Profondeur: " << deepness(t) << endl;;
+	cout << "Profondeur recursive: " << deepnessRec(t) << endl;
+	cout << "Profondeur iterative: " << deepnessIter(t) << endl;
 	showTree(t);
 	return 0;
 }
