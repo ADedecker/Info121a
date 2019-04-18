@@ -45,18 +45,31 @@ void showTree(tree *t) {
 }
 
 void addValIter(tree *t, int val) {
-	branch *b = t -> root;
-	while(b -> left != NULL || b -> right != NULL) {
-		if (val >= b -> data) {
-			b = b -> right;
-		} else {
-			b = b -> left;
-		}
+	cout << 1 << endl;
+	if (t -> root == NULL) {
+		t -> root = newBranch(val);
+		return;
 	}
-	if (val >= b -> data) {
-		b -> right = newBranch(val);
-	} else {
-		b -> left = newBranch(val);
+	cout << 2 << endl;
+	branch *b = t -> root;
+	cout << 3 << endl;
+	while(b != NULL) {
+		if(val < b->data){
+			if(b->left==NULL){
+				b->left=newBranch(val);
+				break;
+			}else{
+				b=b->left;
+			}
+		}
+		else{
+			if(b->right==NULL){
+				b->right=newBranch(val);
+				break;
+			}else{
+				b=b->right;
+			}
+		}
 	}
 }
 
@@ -80,7 +93,7 @@ void addValRec(tree *t, int val) {
 
 int searchMin(tree *t) {
 	branch *b = t -> root;
-	while (b -> left == NULL) {
+	while (b -> left != NULL) {
 		b = b -> left;
 	}
 	return b -> data;
@@ -125,24 +138,23 @@ int deepnessIter(tree *t) {
 	return max;
 }
 
-int recContains(branch *b, int val) {
-	if (b -> data != val) {
-		if (val < b -> data && b -> left != NULL) {
-			return recContains(b -> left, val);
-		}
-		else if (val >= b -> data && b -> right != NULL) {
-			return recContains(b -> right, val);
-		}
-		else {
-			return 0;
-		}
-	} else {
-		return 1;
-	}
+int recContains(branch *b, int val){
+	if(b->data!=val){
+			if (val < b -> data && b->left !=NULL){
+				return (b->left, val);
+			}
+
+			else if (val < b -> data && b->right !=NULL){
+					return (b->right, val);
+			}
+			else
+				return 0;
+	} else
+	return 1;
 }
 
-int contains(tree *t, int val) {
-	return recContains(t -> root, val);
+int contains(tree *b, int val){
+	return recContains(b -> root, val);
 }
 
 branch *findMin(branch *b) {
@@ -155,55 +167,60 @@ branch *findMin(branch *b) {
 branch* recDel(branch *b, int val) {
 	if (b == NULL)
 		return NULL;
-	if (val < b -> data) {  // data is in the left sub tree.
+	if (val < b -> data) {
 		b->left = recDel(b->left, val);
-	} else if (val > b->data) { // data is in the right sub tree.
+	} else if (val > b->data) {
 		b->right = recDel(b->right, val);
 	} else {
-		// case 1: no children
 		if (b->left == NULL && b->right == NULL) {
-			delete(b); // wipe out the memory, in C, use free function
+			delete(b);
 			b = NULL;
 		}
-		// case 2: one child (right)
 		else if (b->left == NULL) {
-			branch *temp = b; // save current node as a backup
+			branch *temp = b;
 			b = b->right;
 			delete temp;
 		}
-		// case 3: one child (left)
 		else if (b->right == NULL) {
-			branch *temp = b; // save current node as a backup
+			branch *temp = b;
 			b = b->left;
 			delete temp;
 		}
-		// case 4: two children
 		else {
-			branch *temp = findMin(b -> right); // find minimal value of right sub tree
-			b->data = temp->data; // duplicate the node
-			b->right = recDel(b->right, temp->data); // delete the duplicate node
+			branch *temp = findMin(b -> right);
+			b->data = temp->data;
+			b->right = recDel(b->right, temp->data);
 		}
 	}
 	return b;
 }
 
 void del(tree *t, int val) {
+	if(t -> root -> left == NULL){
+		t ->root = t-> root -> right;
+	}
 	recDel(t -> root, val);
 }
 
-int main() {
+void sort(int tab[], int n){
 	tree *t = (tree*) malloc (sizeof(tree));
-	t -> root = newBranch(5);
-	t -> root -> left = newBranch(4);
-	t -> root -> right = newBranch(6);
-	t -> root -> left -> left = newBranch(3);
-	addValRec(t, 4);
-	addValRec(t, 4);
-	addValIter(t, 3);
-	cout << "Profondeur recursive: " << deepnessRec(t) << endl;
-	cout << "Profondeur iterative: " << deepnessIter(t) << endl;
-	showTree(t);
-	del(t, 6);
-	showTree(t);
+	t -> root = newBranch(tab[0]);
+	for(int i =1; i<n; i++){
+		addValIter(t,tab[i]);
+	}
+	for(int i=0; i<n;i++){
+		int min=searchMin(t);
+		cout<<min<<" ";
+		del(t, min);
+	}
+	cout << endl;
+}
+
+int main() {
+	const int size=10;
+	int tab1[size]={3,1,2,5,4,9,7,9,8,4};
+	sort(tab1, size);
+	int tab2[size]={3,1,2,5,4,10,7,7,10,4};
+	sort(tab2, size);
 	return 0;
 }
